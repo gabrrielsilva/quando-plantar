@@ -30,7 +30,7 @@ export default async function handler(
           cultura_id: cultura
         },
         {
-          regiao_id: 'sul'
+          regiao_id: cidade
         }
       ]
     },
