@@ -1,0 +1,34 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Cultura {
+  nome           String               @id
+  dias_cultivo   String
+  cultura_regiao CalendarioAgricola[]
+
+  @@map("cultura")
+}
+
+model Regiao {
+  nome           String               @id
+  cultura_regiao CalendarioAgricola[]
+
+  @@map("regiao")
+}
+
+model CalendarioAgricola {
+  id            String  @id
+  cultura_id    String
+  regiao_id     String
+  epoca_plantio String
+  cultura       Cultura @relation(fields: [cultura_id], references: [nome])
+  regiao        Regiao  @relation(fields: [regiao_id], references: [nome])
+
+  @@map("calendario_agricola")
+}
