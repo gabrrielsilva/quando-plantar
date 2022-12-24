@@ -1,31 +1,49 @@
-import { Inter } from '@next/font/google';
+
+import { GetServerSideProps } from 'next';
 import { useState } from 'react';
 import { useForm } from "react-hook-form";
-import { classNames } from '../util/classNames';
+import { H1 } from '../components/typography/H1';
+import CulturaListbox from '../islands/CulturaListbox';
 
-const inter = Inter();
+type CalendarioAgricola = { 
+  regiao: string, 
+  epocaPlantio: string, 
+  diasCultivo: string 
+};
 
-export default function Home() {
+export default function Home({ culturas }: { culturas: string[] }) {
   const { register, handleSubmit } = useForm();
-  const [calendarioAgricola, setCalendarioAgricola] = useState<{ regiao: string, epocaPlantio: string, diasCultivo: string }>(null);
+  const [calendarioAgricola, setCalendarioAgricola] = useState<CalendarioAgricola>(null);
 
   async function onSubmit({ cultura, cidade }: { cultura: string, cidade: string }) {
     const response = await fetch(`/api/calendario-agricola?cultura=${cultura}&cidade=${cidade}`);
-    const data = await response.json();
-    setCalendarioAgricola(data);
+    const calendarioAgricola = await response.json() as CalendarioAgricola;
+    setCalendarioAgricola(calendarioAgricola);
   }
 
   return (
-    <div className='w-screen h-screen bg-[#121212] text-white'>
-      <h1 className={classNames('text-5xl font-bold', inter.className)}>Quando plantar?</h1>
+    <div className='w-screen h-screen p-5 bg-green-800'>
+      <H1 text='Quando plantar?' extraStyles='text-white pt-5 pb-10' />
       <form onSubmit={handleSubmit(onSubmit)}>
-        <input {...register("cultura", { required: true })} type="text" />
+        <CulturaListbox culturas={culturas} />
+        {/* <input {...register("cultura", { required: true })} type="text" />
         <input {...register("cidade", { required: true })} type="text" />
-        <button type='submit'>Submit</button>
+        <button type='submit'>Submit</button> */}
       </form>
-      <p>Região: { calendarioAgricola?.regiao }</p>
+      {/* <p>Região: { calendarioAgricola?.regiao }</p>
       <p>Época de plantio: { calendarioAgricola?.epocaPlantio }</p>
-      <p>Dias de cultivo: { calendarioAgricola?.diasCultivo }</p>
+      <p>Dias de cultivo: { calendarioAgricola?.diasCultivo }</p> */}
     </div>
   )
+}
+ 
+export const getServerSideProps: GetServerSideProps = async () => {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/culturas`);
+  const culturas = await response.json() as string[];
+
+  return {
+    props: {
+      culturas
+    }
+  }
 }
