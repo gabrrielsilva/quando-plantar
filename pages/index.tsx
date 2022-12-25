@@ -8,8 +8,9 @@ import { H1 } from '../components/typography/H1';
 import { Paragraph } from '../components/typography/Paragraph';
 import { CulturaListbox } from '../islands/CulturaListbox';
 import { EstadoListbox } from '../islands/EstadoListbox';
+import { CalendarioAgricola } from '../layout/CalendarioAgricola';
 
-type CalendarioAgricola = { 
+export type CalendarioAgricola = { 
   regiao: string, 
   epocaPlantio: string, 
   diasCultivo: string 
@@ -17,7 +18,7 @@ type CalendarioAgricola = {
 
 export default function Home({ culturas, estados }: { culturas: string[], estados: string[] }) {
   const { control, handleSubmit } = useForm();
-  const [calendarioAgricola, setCalendarioAgricola] = useState<CalendarioAgricola>(null);
+  const [calendarioAgricola, setCalendarioAgricola] = useState<CalendarioAgricola>({ regiao: '', diasCultivo: '', epocaPlantio: '' });
 
   async function onSubmit({ cultura, estado }: { cultura: string, estado: string }) {
     if (!cultura || !estado) throw new Error('Missing Params');
@@ -32,19 +33,16 @@ export default function Home({ culturas, estados }: { culturas: string[], estado
   }
 
   return (
-    <div className='w-screen h-screen p-5 bg-[conic-gradient(at_left,_var(--tw-gradient-stops))] from-emerald-700 via-[#553417] to-green-500'>
+    <div className='flex flex-col w-screen h-screen p-5 bg-[conic-gradient(at_left,_var(--tw-gradient-stops))] from-emerald-700 via-[#553417] to-green-500'>
       <H1 text='Quando plantar?' extraStyles='text-white pt-5 pb-10' />
-      <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-2'>
-        <Paragraph text='Quero plantar:' />
+      <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-2 mb-6'>
+        <Paragraph text='Quero plantar:' extraStyles='text-white' />
         <CulturaListbox control={control} name='cultura' defaultValue={culturas[0]} culturas={culturas} />
-        <Paragraph text='No estado:' />
+        <Paragraph text='No estado:' extraStyles='text-white' />
         <EstadoListbox control={control} name='estado' defaultValue={estados[0]} estados={estados} />
         <Button type='submit' text='Ver calendário' Icon={CalendarDaysIcon} extraStyles='bg-[#6bd968] mt-2 font-bold text-lg' />
       </form>
-      <CalendarioAgricola calendario={calendarioAgricola} />
-      {/* <p>Região: { calendarioAgricola?.regiao }</p>
-      <p>Época de plantio: { calendarioAgricola?.epocaPlantio }</p>
-      <p>Dias de cultivo: { calendarioAgricola?.diasCultivo }</p> */}
+      <CalendarioAgricola calendarioAgricola={calendarioAgricola} />
     </div>
   )
 }

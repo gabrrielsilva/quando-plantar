@@ -10,7 +10,7 @@ type ParagraphProps = {
 
 export const Paragraph = ({ text, extraStyles }: ParagraphProps) => {
   return (
-    <p className={classNames('text-[16px] text-white', inter.className)}>
+    <p className={classNames('text-[16px]', inter.className, extraStyles)}>
       { text }
     </p>
   )
