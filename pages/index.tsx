@@ -1,12 +1,13 @@
 
+import { CalendarDaysIcon } from '@heroicons/react/24/solid';
 import { GetServerSideProps } from 'next';
 import { useState } from 'react';
 import { useForm } from "react-hook-form";
 import { Button } from '../components/Button';
 import { H1 } from '../components/typography/H1';
 import { Paragraph } from '../components/typography/Paragraph';
-import CulturaListbox from '../islands/CulturaListbox';
-import EstadoCombobox from '../islands/EstadoCombobox';
+import { CulturaListbox } from '../islands/CulturaListbox';
+import { EstadoListbox } from '../islands/EstadoListbox';
 
 type CalendarioAgricola = { 
   regiao: string, 
@@ -15,17 +16,17 @@ type CalendarioAgricola = {
 };
 
 export default function Home({ culturas, estados }: { culturas: string[], estados: string[] }) {
-  const { register, handleSubmit } = useForm();
+  const { control, handleSubmit } = useForm();
   const [calendarioAgricola, setCalendarioAgricola] = useState<CalendarioAgricola>(null);
 
-  async function onSubmit({ cultura, estado }: { cultura: string, estado: string }) { 
-    console.log(cultura, estado);
+  async function onSubmit({ cultura, estado }: { cultura: string, estado: string }) {
+    if (!cultura || !estado) throw new Error('Missing Params');
        
-    const regiaoResponse = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estado}/regioes-imediatas?view=nivelado`);
-    const regiaoData = await regiaoResponse.json();
+    const regiaoResponse = await fetch(`http://servicodados.ibge.gov.br/api/v1/localidades/estados/${estado}/regioes-imediatas?view=nivelado`);
+    const regiaoData = await regiaoResponse.json();    
     const regiao = regiaoData[0]['regiao-nome'];
-
-    const calendarioAgricolaResponse = await fetch(`/api/calendario-agricola?cultura=${cultura}&regiao=${regiao}`);
+    
+    const calendarioAgricolaResponse = await fetch('/api/calendario-agricola?' + new URLSearchParams({ cultura, regiao }));
     const calendarioAgricola = await calendarioAgricolaResponse.json() as CalendarioAgricola;
     setCalendarioAgricola(calendarioAgricola);
   }
@@ -35,14 +36,15 @@ export default function Home({ culturas, estados }: { culturas: string[], estado
       <H1 text='Quando plantar?' extraStyles='text-white pt-5 pb-10' />
       <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-2'>
         <Paragraph text='Quero plantar:' />
-        <CulturaListbox register={register} culturas={culturas} />
-        <Paragraph text='Em:' />
-        <EstadoCombobox register={register} estados={estados} />
-        <Button type='submit' text='Buscar' extraStyles='bg-yellow-500' />
+        <CulturaListbox control={control} name='cultura' defaultValue={culturas[0]} culturas={culturas} />
+        <Paragraph text='No estado:' />
+        <EstadoListbox control={control} name='estado' defaultValue={estados[0]} estados={estados} />
+        <Button type='submit' text='Ver calendário' Icon={CalendarDaysIcon} extraStyles='bg-[#6bd968] mt-2 font-bold text-lg' />
       </form>
-      <p>Região: { calendarioAgricola?.regiao }</p>
+      <CalendarioAgricola calendario={calendarioAgricola} />
+      {/* <p>Região: { calendarioAgricola?.regiao }</p>
       <p>Época de plantio: { calendarioAgricola?.epocaPlantio }</p>
-      <p>Dias de cultivo: { calendarioAgricola?.diasCultivo }</p>
+      <p>Dias de cultivo: { calendarioAgricola?.diasCultivo }</p> */}
     </div>
   )
 }

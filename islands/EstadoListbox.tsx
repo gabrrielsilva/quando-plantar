@@ -3,14 +3,14 @@ import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { Fragment } from 'react';
 import { Control, FieldValues, useController, UseControllerProps } from 'react-hook-form';
 
-type CulturaListboxProps = {
-  culturas: string[],
+type EstadoListboxProps = {
+  estados: string[],
   control: Control<FieldValues, any>
 }
 
-export function CulturaListbox(props: CulturaListboxProps & UseControllerProps) {
-  const { culturas } = props;
-  const { field: { value, onChange } } = useController(props);
+export function EstadoListbox(props: EstadoListboxProps & UseControllerProps) {  
+  const { estados } = props;
+  const { field: { value, onChange }} = useController(props);
 
   return (
     <Listbox value={value} onChange={onChange}>
@@ -31,7 +31,7 @@ export function CulturaListbox(props: CulturaListboxProps & UseControllerProps) 
           leaveTo="opacity-0"
         >
           <Listbox.Options className="absolute z-10 w-full mt-1 overflow-auto text-base bg-white rounded-lg shadow-lg max-h-60 ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
-            {culturas.map((cultura) => (
+            {estados.map((cultura) => (
               <Listbox.Option
                 key={cultura}
                 className={({ active }) =>

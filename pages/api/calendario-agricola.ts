@@ -3,7 +3,7 @@ import { prisma } from '../../config/prisma';
 
 type Input = {
   cultura: string,
-  regiao: string
+  regiao: 'Norte' | 'Sul' | 'Nordeste' | 'Sudeste' | 'Centro-Oeste' 
 }
 
 type Output = {
