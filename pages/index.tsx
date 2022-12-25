@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { useForm } from "react-hook-form";
 import { Button } from '../components/Button';
 import { H1 } from '../components/typography/H1';
-import CidadeCombobox from '../islands/CidadeCombobox';
+import { Paragraph } from '../components/typography/Paragraph';
 import CulturaListbox from '../islands/CulturaListbox';
+import EstadoCombobox from '../islands/EstadoCombobox';
 
 type CalendarioAgricola = { 
   regiao: string, 
@@ -13,13 +14,19 @@ type CalendarioAgricola = {
   diasCultivo: string 
 };
 
-export default function Home({ culturas, cidades }: { culturas: string[], cidades: string[] }) {
+export default function Home({ culturas, estados }: { culturas: string[], estados: string[] }) {
   const { register, handleSubmit } = useForm();
   const [calendarioAgricola, setCalendarioAgricola] = useState<CalendarioAgricola>(null);
 
-  async function onSubmit({ cultura, cidade }: { cultura: string, cidade: string }) {
-    const response = await fetch(`/api/calendario-agricola?cultura=${cultura}&cidade=${cidade}`);
-    const calendarioAgricola = await response.json() as CalendarioAgricola;
+  async function onSubmit({ cultura, estado }: { cultura: string, estado: string }) { 
+    console.log(cultura, estado);
+       
+    const regiaoResponse = await fetch(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${estado}/regioes-imediatas?view=nivelado`);
+    const regiaoData = await regiaoResponse.json();
+    const regiao = regiaoData[0]['regiao-nome'];
+
+    const calendarioAgricolaResponse = await fetch(`/api/calendario-agricola?cultura=${cultura}&regiao=${regiao}`);
+    const calendarioAgricola = await calendarioAgricolaResponse.json() as CalendarioAgricola;
     setCalendarioAgricola(calendarioAgricola);
   }
 
@@ -27,16 +34,15 @@ export default function Home({ culturas, cidades }: { culturas: string[], cidade
     <div className='w-screen h-screen p-5 bg-[conic-gradient(at_left,_var(--tw-gradient-stops))] from-emerald-700 via-[#553417] to-green-500'>
       <H1 text='Quando plantar?' extraStyles='text-white pt-5 pb-10' />
       <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-2'>
-        <CulturaListbox culturas={culturas} />
-        <CidadeCombobox cidades={cidades} />
-        <Button type='button' text='Buscar' onClick={() => {}} extraStyles='bg-yellow-500' />
-        {/* <input {...register("cultura", { required: true })} type="text" />
-        <input {...register("cidade", { required: true })} type="text" />
-        <button type='submit'>Submit</button> */}
+        <Paragraph text='Quero plantar:' />
+        <CulturaListbox register={register} culturas={culturas} />
+        <Paragraph text='Em:' />
+        <EstadoCombobox register={register} estados={estados} />
+        <Button type='submit' text='Buscar' extraStyles='bg-yellow-500' />
       </form>
-      {/* <p>Região: { calendarioAgricola?.regiao }</p>
+      <p>Região: { calendarioAgricola?.regiao }</p>
       <p>Época de plantio: { calendarioAgricola?.epocaPlantio }</p>
-      <p>Dias de cultivo: { calendarioAgricola?.diasCultivo }</p> */}
+      <p>Dias de cultivo: { calendarioAgricola?.diasCultivo }</p>
     </div>
   )
 }
@@ -45,15 +51,14 @@ export const getServerSideProps: GetServerSideProps = async () => {
   const culturasResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/culturas`);
   const culturas = await culturasResponse.json() as string[];
 
-  const cidadesResponse = await fetch('http://servicodados.ibge.gov.br/api/v1/localidades/municipios?view=nivelado');
-  const cidadesData = await cidadesResponse.json() as { 'municipio-nome': string }[];
-  const cidadesNome = cidadesData.map(cidade => cidade['municipio-nome']);
-  const cidades = Array.from(new Set(cidadesNome));
+  const estadosResponse = await fetch('http://servicodados.ibge.gov.br/api/v1/localidades/estados?view=nivelado');
+  const estadosData = await estadosResponse.json() as { 'UF-sigla': string }[];
+  const estados = estadosData.map(estado => estado['UF-sigla']);
 
   return {
     props: {
       culturas,
-      cidades
+      estados
     }
   }
 }

@@ -1,14 +1,21 @@
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckIcon, ChevronUpDownIcon } from '@heroicons/react/20/solid';
 import { Fragment, useState } from 'react';
+import { FieldValues, UseFormRegister } from 'react-hook-form';
 
-export default function CulturaListbox({ culturas }: { culturas: string[] }) {
-  const [selected, setSelected] = useState(culturas[0])
+type CulturaListboxProps = {
+  culturas: string[],
+  register: UseFormRegister<FieldValues>
+}
+
+export default function CulturaListbox({ culturas, register }: CulturaListboxProps) {
+  const [selected, setSelected] = useState(culturas[0]);
   
   return (
     <Listbox value={selected} onChange={setSelected}>
       <div className="relative">
         <Listbox.Button className="relative w-full h-10 pl-3 pr-10 text-left bg-white rounded-lg shadow-md cursor-default focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-teal-300 sm:text-sm">
+          <input type="text" {...register('cultura')} value={selected} className='hidden' />
           <span className="block truncate">{selected}</span>
           <span className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
             <ChevronUpDownIcon

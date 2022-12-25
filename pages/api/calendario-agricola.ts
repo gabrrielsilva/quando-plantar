@@ -3,7 +3,7 @@ import { prisma } from '../../config/prisma';
 
 type Input = {
   cultura: string,
-  cidade: string
+  regiao: string
 }
 
 type Output = {
@@ -16,9 +16,9 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Output>
 ) {
-  const { cultura, cidade } = req.query as Input;
+  const { cultura, regiao } = req.query as Input;
 
-  if (!cultura || !cidade) throw new Error('Missing params');
+  if (!cultura || !regiao) throw new Error('Missing params');
 
   const calendarioAgricola = await prisma.calendarioAgricola.findFirst({
     where: {
@@ -27,7 +27,7 @@ export default async function handler(
           cultura_id: cultura
         },
         {
-          regiao_id: cidade
+          regiao_id: regiao
         }
       ]
     },

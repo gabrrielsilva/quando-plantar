@@ -3,7 +3,7 @@ import { classNames } from '../util/classNames';
 type ButtonProps = {
   type: 'button' | 'submit' | 'reset';
   text: string;
-  onClick: () => void;
+  onClick?: () => void;
   extraStyles: string;
 };
 
